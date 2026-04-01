@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { csSubjectsData } from '../data/csSubjects';
 import { 
@@ -6,6 +6,7 @@ import {
   Briefcase, Cloud, Terminal, Calculator, GitMerge, Orbit 
 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import subjectService from '../services/subjectService';
 
 const iconMap = {
   os: LayoutGrid,
@@ -38,7 +39,40 @@ const gradientMap = {
 const Subjects = () => {
   // Convert object dict to array for mapping
   const subjectsArray = Object.values(csSubjectsData);
-  
+  const [subjectProgress, setSubjectProgress] = useState({});
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadProgress = async () => {
+      try {
+        const progressDocs = await subjectService.getSubjects();
+        if (!mounted) return;
+
+        const progressMap = progressDocs.reduce((acc, doc) => {
+          const staticSubject = subjectsArray.find((subject) => subject.title === doc.subject);
+          if (!staticSubject) return acc;
+
+          const completedTopics = Array.isArray(doc.topics)
+            ? doc.topics.filter((topic) => topic.status === 'completed').length
+            : 0;
+
+          acc[staticSubject.id] = completedTopics;
+          return acc;
+        }, {});
+
+        setSubjectProgress(progressMap);
+      } catch (error) {
+        console.error('Unable to load subject progress', error);
+      }
+    };
+
+    loadProgress();
+    return () => {
+      mounted = false;
+    };
+  }, [subjectsArray]);
+
   // Group by category
   const categories = subjectsArray.reduce((acc, subject) => {
     if (!acc[subject.category]) {
@@ -100,10 +134,10 @@ const Subjects = () => {
                   <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-800/80 flex items-center justify-between text-sm">
                     <div className="flex flex-col">
                       <span className="text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-wider mb-1">Progress</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">0 / {subject.topics.length} Topics</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">{subjectProgress[subject.id] || 0} / {subject.topics.length} Topics</span>
                     </div>
                     <div className="h-2 w-24 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 w-0 rounded-full" />
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.round(((subjectProgress[subject.id] || 0) / subject.topics.length) * 100) || 0}%` }} />
                     </div>
                   </div>
                 </Link>

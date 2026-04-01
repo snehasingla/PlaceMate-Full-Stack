@@ -8,8 +8,8 @@ const authService = {
   },
 
   // Login a user
-  login: async (userData) => {
-    const response = await api.post('/auth/login', userData);
+  login: async (userData, rememberMe = true) => {
+    const response = await api.post('/auth/login', { ...userData, rememberMe });
     return response.data;
   },
 

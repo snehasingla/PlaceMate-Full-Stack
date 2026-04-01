@@ -4,10 +4,42 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 
+const normalizeDate = (date) => {
+  const dt = new Date(date);
+  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+};
+
+const updateUserStreak = async (user) => {
+  const today = normalizeDate(new Date());
+  const lastActivity = user.streak?.lastActivity ? normalizeDate(user.streak.lastActivity) : null;
+
+  // If we already recorded activity today, do nothing.
+  if (lastActivity && lastActivity.getTime() === today.getTime()) {
+    return user;
+  }
+
+  if (!user.streak) {
+    user.streak = { current: 0, longest: 0 };
+  }
+
+  // If last activity was yesterday, continue the streak. Otherwise start over.
+  if (lastActivity && lastActivity.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
+    user.streak.current = (user.streak.current || 0) + 1;
+  } else {
+    user.streak.current = 1;
+  }
+
+  user.streak.longest = Math.max(user.streak.longest || 0, user.streak.current);
+  user.streak.lastActivity = today;
+
+  await user.save();
+  return user;
+};
+
 // ─── REGISTER ───────────────────────────────────────────────────────────────
 // POST /api/auth/register
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, rememberMe } = req.body;
 
   // Basic validation
   if (!name || !email || !password) {
@@ -23,10 +55,10 @@ const registerUser = async (req, res) => {
   }
 
   // Create new user (password gets hashed by the pre-save hook in User.js)
-  const user = await User.create({ name, email, password });
+  let user = await User.create({ name, email, password });
 
-  // Generate JWT and set cookie
-  generateToken(res, user._id);
+  user = await updateUserStreak(user);
+  generateToken(res, user._id, rememberMe);
 
   res.status(201).json({
     _id: user._id,
@@ -40,7 +72,7 @@ const registerUser = async (req, res) => {
 // ─── LOGIN ───────────────────────────────────────────────────────────────────
 // POST /api/auth/login
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
 
   if (!email || !password) {
     res.status(400);
@@ -55,7 +87,8 @@ const loginUser = async (req, res) => {
     throw new Error("Invalid email or password");
   }
 
-  generateToken(res, user._id);
+  await updateUserStreak(user);
+  generateToken(res, user._id, rememberMe);
 
   res.json({
     _id: user._id,
@@ -84,7 +117,8 @@ const logoutUser = (req, res) => {
 // GET /api/auth/me  (protected)
 const getMe = async (req, res) => {
   // req.user is attached by the protect middleware
-  res.json(req.user);
+  const user = await updateUserStreak(req.user);
+  res.json(user);
 };
 
 // ─── UPDATE PROFILE ───────────────────────────────────────────────────────────

@@ -2,8 +2,19 @@
 
 const mongoose = require("mongoose");
 
-// Each topic within a subject (e.g. "Process Scheduling" within OS)
+const resourceSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    url: { type: String, required: true },
+    type: { type: String, default: "article" },
+  },
+  { _id: false }
+);
+
+// Each topic within a subject that the user is tracking
 const topicSchema = new mongoose.Schema({
+  topicId: { type: String },
   name: { type: String, required: true },
   status: {
     type: String,
@@ -17,6 +28,7 @@ const topicSchema = new mongoose.Schema({
   },
   notes: { type: String, default: "" },
   nextRevision: { type: Date },
+  completedSubtopics: [{ type: Number }],
 });
 
 // One SubjectProgress document per subject per user
@@ -31,6 +43,11 @@ const subjectProgressSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    trackingEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    resources: [resourceSchema],
     topics: [topicSchema],
   },
   { timestamps: true }
