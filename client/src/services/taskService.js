@@ -1,11 +1,12 @@
 import api from './api';
 
-const getTasks = async (date) => {
-  let url = '/tasks';
-  if (date) {
-    url += `?date=${date}`;
-  }
-  const response = await api.get(url);
+// Get planner tasks for a date, optionally excluding revisions
+const getTasks = async (date, isRevision) => {
+  const params = new URLSearchParams();
+  if (date) params.append('date', date);
+  if (isRevision === false) params.append('isRevision', 'false');
+  if (isRevision === true) params.append('isRevision', 'true');
+  const response = await api.get(`/tasks?${params.toString()}`);
   return response.data;
 };
 
@@ -29,12 +30,5 @@ const deleteTask = async (taskId) => {
   return response.data;
 };
 
-const taskService = {
-  getTasks,
-  getRevisions,
-  createTask,
-  updateTask,
-  deleteTask,
-};
-
+const taskService = { getTasks, getRevisions, createTask, updateTask, deleteTask };
 export default taskService;
