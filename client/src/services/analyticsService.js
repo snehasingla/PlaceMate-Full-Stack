@@ -11,6 +11,16 @@ const analyticsService = {
     const response = await api.get('/analytics/activity');
     return response.data;
   },
+
+  getSubjectAnalytics: async () => {
+    const response = await api.get('/analytics/subjects');
+    return response.data;
+  },
+
+  getCompanyAnalytics: async () => {
+    const response = await api.get('/analytics/companies');
+    return response.data;
+  },
 };
 
 export default analyticsService;

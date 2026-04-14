@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Code2, Building2, StickyNote, Flame, ArrowRight, Clock, Trophy, CheckCircle2 } from 'lucide-react';
 import StatCard from '../components/common/StatCard';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,7 +16,11 @@ const Dashboard = () => {
   });
   const [activityData, setActivityData] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [subjectData, setSubjectData] = useState([]);
+  const [companyData, setCompanyData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -84,9 +88,11 @@ const Dashboard = () => {
     const loadDashboard = async () => {
       setLoading(true);
       try {
-        const [dashboardStats, activity] = await Promise.all([
+        const [dashboardStats, activity, subjects, companies] = await Promise.all([
           analyticsService.getDashboardStats(),
           analyticsService.getActivityAnalytics(),
+          analyticsService.getSubjectAnalytics(),
+          analyticsService.getCompanyAnalytics(),
         ]);
 
         setStats({
@@ -103,6 +109,14 @@ const Dashboard = () => {
           }))
         );
         setRecentActivity(dashboardStats.recentActivity || []);
+        setSubjectData(subjects || []);
+        
+        // Format company data for pie chart
+        const formattedCompanies = companies.map(c => ({
+          name: c._id || 'Unknown',
+          value: c.count || 0
+        }));
+        setCompanyData(formattedCompanies);
       } catch (error) {
         console.error('Dashboard stats load failed', error);
       } finally {

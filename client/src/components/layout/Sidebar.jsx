@@ -14,6 +14,7 @@ const navItems = [
   { path: "/applications", label: "Applications", icon: Building2 },
   { path: "/notes", label: "My Notes", icon: StickyNote },
   { path: "/mock", label: "Mock Interviews", icon: Mic2 },
+  { path: "/resume-ai", label: "AI Resume", icon: Sparkles },
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
