@@ -18,6 +18,8 @@ const noteRoutes = require("./routes/noteRoutes");
 const mockRoutes = require("./routes/mockRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const reflectionRoutes = require("./routes/reflectionRoutes");
 
 // Load .env variables
 dotenv.config();
@@ -71,6 +73,8 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/mock", mockRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/reflections", reflectionRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
