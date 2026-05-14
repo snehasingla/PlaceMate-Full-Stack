@@ -4,6 +4,8 @@ import { Plus, Link as LinkIcon, Trash2 } from 'lucide-react';
 import Modal from '../components/common/Modal';
 import dsaService from '../services/dsaService';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
+import StatCard from '../components/common/StatCard';
 
 const initialFormState = {
   title: '',
@@ -21,6 +23,9 @@ const DSATracker = () => {
   const [formData, setFormData] = useState(initialFormState);
   const [isSaving, setIsSaving] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState({});
+  const [leetcodeStats, setLeetcodeStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const { user } = useAuth();
 
   const statusLabel = (status) => {
     switch (status) {
@@ -64,7 +69,22 @@ const DSATracker = () => {
 
   useEffect(() => {
     loadProblems();
-  }, []);
+    if (user?.leetcodeUsername) {
+      loadLeetcodeStats(user.leetcodeUsername);
+    }
+  }, [user]);
+
+  const loadLeetcodeStats = async (username) => {
+    setLoadingStats(true);
+    try {
+      const stats = await dsaService.getLeetCodeStats(username);
+      setLeetcodeStats(stats);
+    } catch (error) {
+      console.error('Failed to load LeetCode stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const openModal = () => {
     setFormData(initialFormState);
@@ -121,6 +141,39 @@ const DSATracker = () => {
           Add Problem
         </button>
       </div>
+
+      {user?.leetcodeUsername && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">LeetCode Stats</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">({user.leetcodeUsername})</span>
+          </div>
+          {loadingStats ? (
+            <div className="text-sm text-gray-500">Loading LeetCode stats...</div>
+          ) : leetcodeStats ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Solved</p>
+                <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{leetcodeStats.total}</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-emerald-50 dark:bg-emerald-950/20 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-500">Easy</p>
+                <p className="mt-2 text-2xl font-bold text-emerald-700 dark:text-emerald-400">{leetcodeStats.easy}</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-amber-50 dark:bg-amber-950/20 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-500">Medium</p>
+                <p className="mt-2 text-2xl font-bold text-amber-700 dark:text-amber-400">{leetcodeStats.medium}</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-red-50 dark:bg-red-950/20 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-500">Hard</p>
+                <p className="mt-2 text-2xl font-bold text-red-700 dark:text-red-400">{leetcodeStats.hard}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-red-500">Unable to load stats. Please check your username.</div>
+          )}
+        </div>
+      )}
 
       <div className="space-y-6">
         {isLoading ? (

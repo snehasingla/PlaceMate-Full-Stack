@@ -23,6 +23,12 @@ const dsaService = {
   deleteProblem: async (id) => {
     const response = await api.delete(`/dsa/${id}`);
     return response.data;
+  },
+
+  // Get LeetCode stats
+  getLeetCodeStats: async (username) => {
+    const response = await api.get(`/dsa/leetcode/${username}`);
+    return response.data;
   }
 };
 

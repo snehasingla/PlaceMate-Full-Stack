@@ -4,6 +4,11 @@ import {
   StickyNote, Mic2, X, Sparkles, CalendarDays, RefreshCcw
 } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { useState } from "react";
+import PaymentModal from "../common/PaymentModal";
+import { useAuth } from "../../context/AuthContext";
+import paymentService from "../../services/paymentService";
+import toast from "react-hot-toast";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -18,6 +23,23 @@ const navItems = [
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const [showPayment, setShowPayment] = useState(false);
+  const { user, updateProfile } = useAuth();
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancelPremium = async () => {
+    setIsCancelling(true);
+    try {
+      await paymentService.cancelPremium();
+      await updateProfile({ isPremium: false });
+      toast.success("Premium status removed for testing.");
+    } catch (error) {
+      toast.error("Failed to remove premium status.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   return (
     <>
       <div
@@ -75,21 +97,47 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
 
           <div className="mt-auto pt-8">
-            <div className="rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 p-4 dark:from-indigo-950/40 dark:to-purple-950/40 border border-indigo-100/50 dark:border-indigo-900/50">
-              <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-semibold mb-2">
-                <Sparkles className="h-4 w-4" />
-                <span>Go Premium</span>
+            {!user?.isPremium ? (
+              <div className="rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 p-4 dark:from-indigo-950/40 dark:to-purple-950/40 border border-indigo-100/50 dark:border-indigo-900/50">
+                <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-semibold mb-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Go Premium</span>
+                </div>
+                <p className="text-xs text-indigo-900/70 dark:text-indigo-200/60 mb-3">
+                  Unlock AI mock interviews and advanced resume reviews.
+                </p>
+                <button 
+                  onClick={() => setShowPayment(true)}
+                  className="w-full rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
+                >
+                  Upgrade Now
+                </button>
               </div>
-              <p className="text-xs text-indigo-900/70 dark:text-indigo-200/60 mb-3">
-                Unlock AI mock interviews and advanced resume reviews.
-              </p>
-              <button className="w-full rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors">
-                Upgrade Now
-              </button>
-            </div>
+            ) : (
+              <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 p-4 dark:from-emerald-950/40 dark:to-teal-950/40 border border-emerald-100/50 dark:border-emerald-900/50 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Premium Active</p>
+                    <p className="text-[10px] text-emerald-600/80 dark:text-emerald-300/60">All features unlocked</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleCancelPremium} 
+                  disabled={isCancelling}
+                  className="text-[10px] font-medium text-emerald-700/70 hover:text-emerald-800 underline text-left disabled:opacity-50"
+                >
+                  {isCancelling ? 'Removing...' : 'Remove Premium (Test)'}
+                </button>
+              </div>
+            )}
           </div>
         </nav>
       </div>
+
+      <PaymentModal isOpen={showPayment} onClose={() => setShowPayment(false)} />
 
       {isOpen && (
         <div 

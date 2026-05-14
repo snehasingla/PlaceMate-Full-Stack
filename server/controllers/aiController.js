@@ -7,15 +7,20 @@ const analyzeResume = async (req, res) => {
     return res.status(400).json({ message: "Resume text and Job Description are required" });
   }
 
+  // Check if user is premium
+  if (!req.user.isPremium) {
+    return res.status(403).json({ message: "This feature is locked. Please upgrade to Premium to use the AI Resume Analyzer." });
+  }
+
   if (!process.env.GEMINI_API_KEY) {
-    return res.status(400).json({ 
-      feedback: "### Configuration Required\n\nTo see real AI analysis, you must add your `GEMINI_API_KEY` to the `.env` file in the server directory.\n\n1. Go to [Google AI Studio](https://aistudio.google.com/) and create a free API key.\n2. Add `GEMINI_API_KEY=your_key_here` to `server/.env`.\n3. Restart your server." 
+    return res.status(400).json({
+      feedback: "### Configuration Required\n\nTo see real AI analysis, you must add your `GEMINI_API_KEY` to the `.env` file in the server directory.\n\n1. Go to [Google AI Studio](https://aistudio.google.com/) and create a free API key.\n2. Add `GEMINI_API_KEY=your_key_here` to `server/.env`.\n3. Restart your server."
     });
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    
+
     const prompt = `
 You are an expert ATS (Applicant Tracking System) scanner and technical tech recruiter.
 Analyze the following technical resume against the job description and provide a professional feedback report in Markdown format.
@@ -46,8 +51,8 @@ ${jobDescription}
 `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
+      model: 'gemini-2.5-flash',
+      contents: prompt
     });
 
     const feedback = response.text;

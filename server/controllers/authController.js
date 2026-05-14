@@ -66,6 +66,7 @@ const registerUser = async (req, res) => {
     email: user.email,
     targetRole: user.targetRole,
     streak: user.streak,
+    isPremium: user.isPremium,
   });
 };
 
@@ -96,6 +97,7 @@ const loginUser = async (req, res) => {
     email: user.email,
     targetRole: user.targetRole,
     streak: user.streak,
+    isPremium: user.isPremium,
   });
 };
 
@@ -136,6 +138,12 @@ const updateProfile = async (req, res) => {
   user.targetRole = req.body.targetRole || user.targetRole;
   user.targetDate = req.body.targetDate || user.targetDate;
   user.avatar = req.body.avatar || user.avatar;
+  if (req.body.leetcodeUsername !== undefined) {
+    user.leetcodeUsername = req.body.leetcodeUsername;
+  }
+  if (req.body.isPremium !== undefined) {
+    user.isPremium = req.body.isPremium;
+  }
 
   // If a new password is sent, update it (pre-save hook will re-hash it)
   if (req.body.password) {
@@ -151,7 +159,9 @@ const updateProfile = async (req, res) => {
     targetRole: updatedUser.targetRole,
     targetDate: updatedUser.targetDate,
     avatar: updatedUser.avatar,
+    leetcodeUsername: updatedUser.leetcodeUsername,
     streak: updatedUser.streak,
+    isPremium: updatedUser.isPremium,
   });
 };
 

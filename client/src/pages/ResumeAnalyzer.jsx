@@ -3,12 +3,16 @@ import { motion } from 'framer-motion';
 import { Bot, FileText, Briefcase, Sparkles, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import aiService from '../services/aiService';
+import { useAuth } from '../context/AuthContext';
+import PaymentModal from '../components/common/PaymentModal';
 
 const ResumeAnalyzer = () => {
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const [showPayment, setShowPayment] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -21,6 +25,11 @@ const ResumeAnalyzer = () => {
   };
 
   const handleAnalyze = async () => {
+    if (!user?.isPremium) {
+      setShowPayment(true);
+      return;
+    }
+
     if (!resumeText.trim() || !jobDescription.trim()) {
       toast.error('Please provide both resume text and job description.');
       return;
@@ -91,13 +100,22 @@ const ResumeAnalyzer = () => {
           <button
             onClick={handleAnalyze}
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed ${
+              !user?.isPremium 
+                ? 'bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-gray-900/30 hover:from-gray-700 hover:to-gray-800'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/30'
+            }`}
           >
             {loading ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Analyzing with AI...
               </div>
+            ) : !user?.isPremium ? (
+              <>
+                <Sparkles className="w-5 h-5 text-yellow-400" />
+                Unlock Premium to Analyze
+              </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
@@ -155,6 +173,8 @@ const ResumeAnalyzer = () => {
           </div>
         </motion.div>
       </div>
+
+      <PaymentModal isOpen={showPayment} onClose={() => setShowPayment(false)} />
     </motion.div>
   );
 };

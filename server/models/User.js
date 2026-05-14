@@ -32,6 +32,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "SDE Intern",
     },
+    leetcodeUsername: {
+      type: String,
+      default: "",
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
     targetDate: {
       type: Date,
     },

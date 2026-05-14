@@ -11,6 +11,7 @@ const Profile = () => {
     targetRole: "",
     targetDate: "",
     avatar: "",
+    leetcodeUsername: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,6 +23,7 @@ const Profile = () => {
         targetRole: user.targetRole || "",
         targetDate: user.targetDate ? user.targetDate.slice(0, 10) : "",
         avatar: user.avatar || "",
+        leetcodeUsername: user.leetcodeUsername || "",
       });
     }
   }, [user]);
@@ -41,6 +43,7 @@ const Profile = () => {
         targetRole: formData.targetRole,
         targetDate: formData.targetDate || null,
         avatar: formData.avatar,
+        leetcodeUsername: formData.leetcodeUsername,
       });
     } catch (error) {
       toast.error("Unable to save profile changes");
@@ -182,6 +185,17 @@ const Profile = () => {
                 />
               </label>
 
+              <label className="block">
+                <span className="text-sm font-medium text-slate-200">LeetCode Username</span>
+                <input
+                  name="leetcodeUsername"
+                  value={formData.leetcodeUsername}
+                  onChange={handleChange}
+                  className="mt-2 block w-full rounded-3xl border border-slate-700 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                  placeholder="e.g., neetcode"
+                />
+              </label>
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -211,6 +225,10 @@ const Profile = () => {
                 <div className="rounded-3xl bg-slate-950/80 p-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Timeline</p>
                   <p className="mt-2 text-base font-medium text-white">{user.targetDate ? user.targetDate.slice(0, 10) : "Not set"}</p>
+                </div>
+                <div className="rounded-3xl bg-slate-950/80 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">LeetCode</p>
+                  <p className="mt-2 text-base font-medium text-white">{user.leetcodeUsername || "Not linked"}</p>
                 </div>
               </div>
             </div>

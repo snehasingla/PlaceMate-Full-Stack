@@ -6,6 +6,10 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+
+// Load .env variables first so controllers have access to them
+dotenv.config();
+
 const connectDB = require("./config/db");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
@@ -20,9 +24,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const reflectionRoutes = require("./routes/reflectionRoutes");
-
-// Load .env variables
-dotenv.config();
+const paymentRoutes = require("./routes/paymentRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -75,6 +77,7 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/reflections", reflectionRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
