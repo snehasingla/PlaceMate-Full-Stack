@@ -38,6 +38,7 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://127.0.0.1:5173",
   "http://localhost:5173",
+    'https://place-mate-full-stack-2ghqp0uz3-sneha-singlas-projects.vercel.app',
 ];
 app.use(
   cors({
