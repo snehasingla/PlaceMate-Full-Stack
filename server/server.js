@@ -39,7 +39,34 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://127.0.0.1:5173",
   "http://localhost:5173",
+    'https://place-mate-full-stack-2ghqp0uz3-sneha-singlas-projects.vercel.app',
 ];
+
+const allowedOriginPattern = /^https:\/\/place-mate-full-stack.*\.vercel\.app$/;
+
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin) {
+//         callback(null, true);
+//         return;
+//       }
+
+//       if (process.env.NODE_ENV !== "production") {
+//         callback(null, true);
+//         return;
+//       }
+
+//       if (allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true, // Allow cookies to be sent cross-origin
+//   })
+// );
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -48,18 +75,18 @@ app.use(
         return;
       }
 
-      if (process.env.NODE_ENV !== "production") {
+      if (process.env.NODE_ENV !== 'production') {
         callback(null, true);
         return;
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin) || allowedOriginPattern.test(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true, // Allow cookies to be sent cross-origin
+    credentials: true,
   })
 );
 
