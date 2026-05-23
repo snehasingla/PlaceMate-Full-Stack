@@ -25,6 +25,7 @@ const aiRoutes = require("./routes/aiRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const reflectionRoutes = require("./routes/reflectionRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -78,6 +79,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/reflections", reflectionRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/interviews", interviewRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

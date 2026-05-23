@@ -21,6 +21,8 @@ import Applications from './pages/Applications';
 import Notes from './pages/Notes';
 import Profile from './pages/Profile';
 import MockInterviews from './pages/MockInterviews';
+import NewInterview from './pages/NewInterview';
+import InterviewSession from './pages/InterviewSession';
 import ResumeAnalyzer from './pages/ResumeAnalyzer';
 
 const PublicRoute = ({ children }) => {
@@ -69,6 +71,8 @@ const App = () => {
         <Route path="notes" element={<Notes />} />
         <Route path="profile" element={<Profile />} />
         <Route path="mock" element={<MockInterviews />} />
+        <Route path="mock/new" element={<NewInterview />} />
+        <Route path="mock/session" element={<InterviewSession />} />
         <Route path="resume-ai" element={<ResumeAnalyzer />} />
       </Route>
 

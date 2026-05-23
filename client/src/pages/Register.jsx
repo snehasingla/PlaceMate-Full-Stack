@@ -28,6 +28,7 @@ const Register = () => {
     setIsSubmitting(true);
     try {
       await register(formData);
+      sessionStorage.setItem('authEvent', 'signup');
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (error) {

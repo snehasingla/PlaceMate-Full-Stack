@@ -7,12 +7,15 @@ import { CheckCircle2, Rocket, Target, Sparkles } from "lucide-react";
 export default function WelcomeModal() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [authEvent, setAuthEvent] = useState(null);
 
   useEffect(() => {
-    // Only show if the user just registered (we use a simple localStorage flag for this demo)
-    const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
-    if (user && !hasSeenWelcome) {
+    // Check if the user just logged in or signed up
+    const event = sessionStorage.getItem("authEvent");
+    if (user && event) {
+      setAuthEvent(event);
       setIsOpen(true);
+      sessionStorage.removeItem("authEvent"); // Clear it so it only shows once
       // Fire confetti
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
@@ -39,7 +42,6 @@ export default function WelcomeModal() {
   }, [user]);
 
   const handleComplete = () => {
-    localStorage.setItem("hasSeenWelcome", "true");
     setIsOpen(false);
   };
 
@@ -67,10 +69,14 @@ export default function WelcomeModal() {
             </div>
 
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
-              Welcome to PlaceMate, {user?.name?.split(" ")[0]}!
+              {authEvent === "login" 
+                ? `Welcome back, ${user?.name?.split(" ")[0]}!` 
+                : `Welcome to PlaceMate, ${user?.name?.split(" ")[0]}!`}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-              Your intelligent companion for surviving placement season. Build your streak, crush DSA, and lock down that target role.
+              {authEvent === "login" 
+                ? "Ready to continue your placement preparation? Dive right back into your tasks."
+                : "Your intelligent companion for surviving placement season. Build your streak, crush DSA, and lock down that target role."}
             </p>
 
             <div className="space-y-4 mb-8">
@@ -92,7 +98,7 @@ export default function WelcomeModal() {
               onClick={handleComplete}
               className="w-full rounded-xl bg-indigo-600 px-4 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              Start My Journey
+              {authEvent === "login" ? "Continue" : "Start My Journey"}
             </button>
           </motion.div>
         </div>

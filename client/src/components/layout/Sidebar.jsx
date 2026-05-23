@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Code2, BookOpen, Building2,
   StickyNote, Mic2, X, Sparkles, CalendarDays, RefreshCcw
@@ -26,6 +26,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [showPayment, setShowPayment] = useState(false);
   const { user, updateProfile } = useAuth();
   const [isCancelling, setIsCancelling] = useState(false);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleCancelPremium = async () => {
     setIsCancelling(true);
@@ -76,7 +79,17 @@ const Sidebar = ({ isOpen, onClose }) => {
               <NavLink
                 key={path}
                 to={path}
-                onClick={onClose}
+                onClick={(e) => {
+                  if (location.pathname === '/mock/session') {
+                    e.preventDefault();
+                    if (window.confirm("You are currently in an active interview session. Leaving now will abandon your session. Are you sure you want to leave?")) {
+                      navigate(path);
+                      onClose();
+                    }
+                  } else {
+                    onClose();
+                  }
+                }}
                 end={path === '/dashboard'}
                 className={({ isActive }) =>
                   cn(

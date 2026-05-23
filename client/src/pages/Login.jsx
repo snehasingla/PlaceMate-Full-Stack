@@ -28,6 +28,7 @@ const Login = () => {
     setIsSubmitting(true);
     try {
       await login({ email: formData.email, password: formData.password }, formData.rememberMe);
+      sessionStorage.setItem('authEvent', 'login');
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (error) {
